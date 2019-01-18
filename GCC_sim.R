@@ -7,14 +7,11 @@
 # description:  calcule the values of GCC measure
 # inputs:  
 # - two time series
-# - lag k 
+# - lag k , if the user don't know this value, we use by default floor(N/10).
 # output:       values of GCC similarity measure
 #
 # creadet by:   Carolina Gamboa
-# V2: in this version there is a modification on the previous version, 
-# incorporating the calculation of the value of the GCC for lag k = 0. 
-# It also incorporates a condition to determine automatically the value of k 
-# in case the user does not provide it. 
+
 
 
 GCC_sim <- function(x, y, k){
