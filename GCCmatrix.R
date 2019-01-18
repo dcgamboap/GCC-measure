@@ -44,7 +44,8 @@ GCCmatrix <- function(serie_0, k, model){
   if(missing(k)){
     
     if(missing(model)){
-      
+      # in setAR function we estimate AR models varying order p between 1 and orderMax parameter, 
+      #and return the order that maximice the BIC criteria.  
       setAR <- function(x){
         N <- length(x)
 #        orderMax <- min(N-1, 10*log10(N))
@@ -60,7 +61,7 @@ GCCmatrix <- function(serie_0, k, model){
             spfinal.order <- c(i, 0, 0)
                }
           }
-        arOrder <- spfinal.order[1]
+        arOrder <- spfinal.order[1] 
         
         return(arOrder)
       }
@@ -70,6 +71,8 @@ GCCmatrix <- function(serie_0, k, model){
       kSup <- max(PP) # upper limit for "k"
       
     } else{
+      # in orderArch function we estimate ARCH(p) models varying order p between 1 and orderMax parameter, 
+      #and return the order that maximice the BIC criteria.  
       
       orderArch <- function(x){
         N <- length(x)
