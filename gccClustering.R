@@ -23,7 +23,7 @@
           # - NCL: number of groups
 
 # 
-# creadet by:   Andrés Alonso, modified by Diana Gamboa. 
+# creadet by:   AndrÃ©s Alonso, modified by Diana Gamboa. 
 #----------------------------------------------------------------------------------
 
 
@@ -149,12 +149,14 @@ gccClustering <- function(zData, zLag, Percentage, Threshold, toPlot){
   }
   
   TAB <- table(CL)
+        
+  tab <- data.frame(labels = as.numeric(as.character(names(TAB))), 
+                    abs.freq = as.matrix(TAB)[, 1], 
+                    rel.freq = as.matrix(TAB)[, 1]/sum(TAB))
+  rownames(tab) <- NULL        
   
   if(toPlot==TRUE){
-    tab <- data.frame(labels = as.numeric(as.character(names(TAB))), 
-                      abs.freq = as.matrix(TAB)[, 1], 
-                      rel.freq = as.matrix(TAB)[, 1]/sum(TAB))
-    rownames(tab) <- NULL
+
     cat("> final cluster assignation \n \n")
     print(tab)
     cat("\n\n")
