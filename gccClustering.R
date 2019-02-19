@@ -47,7 +47,7 @@ source("gap.R")
 #----------------------------------------------------------------------------------
 gccClustering <- function(zData, zLag, Percentage, Threshold, toPlot){
   
-  if(missing(zLag)) DM <- GCCmatrix(zData)
+  if(missing(zLag)) DM <- GCCmatrix(zData); cat("> k used for GCC:", DM$k,  "\n\n")
   if(missing(Percentage)) Percentage <- 0.05
   if(missing(Threshold)) Threshold <- 0.9
   if(missing(toPlot)) toPlot <- FALSE  
