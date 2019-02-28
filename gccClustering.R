@@ -1,30 +1,50 @@
 
-
 #----------------------------------------------------------------------------------
 # gccClustering
 #----------------------------------------------------------------------------------
 #
 # name:         gccClustering.R
-# description:  In this program a hierarchical grouping is constructed, 
-#               increasing the efficiency of the gap and silhouette statistics, 
-#               cleaning the database of outliers.This implementation was taken 
-#               from the developments made by Professor Andres Alonso.  
+
+# description
+# In this program a clustering of time series is made by using the procedure 
+# in Alonso and Peña (2019). first the matrix of Generalized Cross correlation (GCC) is built by 
+# using the subrutine GCCmatrix, then a hierarchical grouping is constructed and the number of 
+#  clusters is selected by a modified silhouette statistics, as follows:
+# (1) series that join the groups at a distance larger than the a given threshold of the 
+#distribution of the distances are disregarded. 
+# (2) A minimum  size for the groups is defined by Percentage, groups smaller than Percentage are 
+# disregarded.
+# (3) The final groups are obtained by applying the silhouette statistics to the part of the sample of 
+# time series that verifies conditions (1) and (2).  
+# (4) The series disregarded in steps (1) and (2) are asigned to the closest groups, assuming 
+# that the series is not an outlier with respect the members of the group, as checked by the 
+# median and the mad of the distances inside the group.
 
 # input: 
-        # - zData: time series
-        # - zLag : selected k  
-        # - Percentage: % of observations that are considered a small group.
-        # - threshold: percentage of observations that are not considered outliers. 
-        # - toPlot: receives TRUE or FALSE values. If the value is TRUE, 
-        #           the dendograms will be printed before and after "cleaning" the outliers.
+#       - zData: matrix of time series in columns
+#       - zLag : selected k  for the GCC (default is computed inside the program)
+#       - threshold: percentail in the distribution of distances that define  
+#           observations that are not considered outliers.
+#       - Percentage: % relative size of the minimum group considered.
+#       - toPlot: receives TRUE or FALSE values. If the value is TRUE, 
+#           the dendograms will be printed before and after "cleaning" the outliers.
+#     
 #                
 # output:	
-          # - R: assignments of time series to each of the groups. 
-          # - NCL: number of groups
+#    -Tabla de number of clusters found and number of observations in each cluster.
+#          Group 0 if it exists indicates the outlier group. 
+#  - sal: is a list with two objects
+#           - $labels: assignments of time series to each of the groups. 
+#           - $groups: is a list of matrices. each matrix corresponds to the set of time 
+#                       series that make up each group. 
+#                       For example, $groups[[i]] contains the set of time series 
+#                       that belong to the ith group. 
+# - 
 
 # 
-# creadet by:   AndrÃ©s Alonso, modified by Diana Gamboa. 
+# written by Andrés Alonso, Carolina Gamboa and Daniel Peña. 
 #----------------------------------------------------------------------------------
+
 
 
 #----------------------------------------------------------------------------------
@@ -45,9 +65,11 @@ source("gap.R")
 #----------------------------------------------------------------------------------
 # main
 #----------------------------------------------------------------------------------
-gccClustering <- function(zData, zLag, Percentage, Threshold, toPlot){
+gccClustering <- function(zData, zLag, Percentage, Threshold, toPlot, asignG){
   
-  if(missing(zLag)) DM <- GCCmatrix(zData); cat("> k used for GCC:", DM$k,  "\n\n")
+  if(missing(zLag)){ 
+    DM <- GCCmatrix(zData); cat("> k used for GCC:", DM$k,  "\n\n")
+  }
   if(missing(Percentage)) Percentage <- 0.05
   if(missing(Threshold)) Threshold <- 0.9
   if(missing(toPlot)) toPlot <- FALSE  
@@ -157,9 +179,7 @@ gccClustering <- function(zData, zLag, Percentage, Threshold, toPlot){
   
   if(toPlot==TRUE){
 
-    cat("> final cluster assignation \n \n")
-    print(tab)
-    cat("\n\n")
+ 
     
     plot(lr, hang = -1)
   }
@@ -179,8 +199,31 @@ gccClustering <- function(zData, zLag, Percentage, Threshold, toPlot){
     CL <- WCL
   }
   
-    
-  return(CL)
+  groupAsign <- list()
+  for(i in 1:length(unique(CL))){
+    groupAsign[[i]]  <-  zData[, which(CL == i)]
+  }  
+  
+
+  cat("> number final of clusters", length(unique(CL)), "\n \n")
+  
+  cat("> frecuency table\n \n")
+
+  TAB <- table(CL)
+  tab <- data.frame(labels = as.numeric(as.character(names(TAB))), 
+                    abs.freq = as.matrix(TAB)[, 1], 
+                    rel.freq = as.matrix(TAB)[, 1]/sum(TAB))
+ 
+  
+  print(tab)
+  cat("\n\n")
+  
+  sal <- list()
+  sal$labels <- CL
+  sal$groups <- groupAsign
+  
+
+  return(sal)
 
 }
 
