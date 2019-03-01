@@ -61,6 +61,7 @@ library('cluster')
 source("GCCmatrix.R")
 source("silhouetteNClus.R")
 source("gap.R")
+source("graphMatrix.R")
 
 #----------------------------------------------------------------------------------
 # main
@@ -116,7 +117,7 @@ gccClustering <- function(zData, zLag, Percentage, Threshold, toPlot, asignG){
     cat("\n")
     
     par(mfrow = c(2, 1))
-    plot(lr, hang = -1)
+    #plot(lr, hang = -1)
   }
   
   
@@ -156,38 +157,21 @@ gccClustering <- function(zData, zLag, Percentage, Threshold, toPlot, asignG){
   
   CL <- rep(0, PP)
   CL[R2[R22]] <- clusters[R22, NCL]
-  
-  where  <- which(CL == 0)
-  
-  
-  nearest = 1
-  while(length(where)>0){
-    nearest = nearest +1
-    for(i in 1:length(where)){
-      I1 <- order(DM$DM[where[i], ])
-      CL[where[i]] <- CL[I1[nearest]]
-    }
-    where <- which(CL == 0)
-  }
-  
+ 
   TAB <- table(CL)
         
   tab <- data.frame(labels = as.numeric(as.character(names(TAB))), 
                     abs.freq = as.matrix(TAB)[, 1], 
                     rel.freq = as.matrix(TAB)[, 1]/sum(TAB))
   rownames(tab) <- NULL        
-  
-  if(toPlot==TRUE){
-
  
-    
-    plot(lr, hang = -1)
-  }
   
   NCL <- sum(as.numeric(names(TAB))>0) - sum(TAB==0)
   if(max(as.numeric(names(TAB)))>NCL){
     WCL <- CL
     k <- 1
+    if(sum(names(TAB)==0)==1)     k <- 0
+
     for(i in 1:max(as.numeric(names(TAB)))){
       if(!is.na(tab[i, 1])){ 
         C <- as.numeric(names(TAB))[i]
@@ -222,6 +206,10 @@ gccClustering <- function(zData, zLag, Percentage, Threshold, toPlot, asignG){
   sal$labels <- CL
   sal$groups <- groupAsign
   
+  
+  if(toPlot==TRUE){
+    graphMatrix(DM$DM, CL)
+  }
 
   return(sal)
 
