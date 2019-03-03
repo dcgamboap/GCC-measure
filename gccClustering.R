@@ -24,8 +24,10 @@
 #       - zData: matrix of time series in columns
 #       - zLag : selected k  for the GCC (default is computed inside the program)
 #       - threshold: percentail in the distribution of distances that define  
-#           observations that are not considered outliers.
-#       - Percentage: % relative size of the minimum group considered.
+#           observations that are not considered outliers. If the user does not specify a value, 
+#           it will be taken by default 0.9.
+#       - Percentage: % relative size of the minimum group considered.  If the 
+#                     user does not specify a value, it will be taken by default 0.05.
 #       - toPlot: receives TRUE or FALSE values. If the value is TRUE, 
 #           the dendograms will be printed before and after "cleaning" the outliers.
 #     
@@ -39,6 +41,7 @@
 #                       series that make up each group. 
 #                       For example, $groups[[i]] contains the set of time series 
 #                       that belong to the ith group. 
+#           - $disMatrix: dissimilarity matrix used for cluster. 
 # - 
 
 # 
@@ -66,7 +69,7 @@ source("graphMatrix.R")
 #----------------------------------------------------------------------------------
 # main
 #----------------------------------------------------------------------------------
-gccClustering <- function(zData, zLag, Percentage, Threshold, toPlot, asignG){
+gccClustering <- function(zData, zLag, Percentage, Threshold, toPlot){
   
   if(missing(zLag)){ 
     DM <- GCCmatrix(zData); cat("> k used for GCC:", DM$k,  "\n\n")
@@ -205,6 +208,7 @@ gccClustering <- function(zData, zLag, Percentage, Threshold, toPlot, asignG){
   sal <- list()
   sal$labels <- CL
   sal$groups <- groupAsign
+  sal$disMatrix <- DM$DM
   
   
   if(toPlot==TRUE){
